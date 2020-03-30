@@ -25,8 +25,8 @@ tcp_socket& tcp_switch_session::get_client_socket()
 
 void tcp_switch_session::start(const std::vector<address>& target_address_list)
 {
-    LOG(LOGI_ALL, "接收到客户端连接:client[%s]", client_socket_.get_session_id().c_str());
-    singletion<tcp_flow_statistics>::getinstance()->increment_connection();
+    /* LOG(LOGI_ALL, "接收到客户端连接:client[%s]", client_socket_.get_session_id().c_str()); */
+    /* singletion<tcp_flow_statistics>::getinstance()->increment_connection(); */
 
     reset_keepalive_timer();
     init_target_socket(target_address_list);

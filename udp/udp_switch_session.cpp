@@ -1,8 +1,8 @@
 #include "udp_switch_session.h"
 #include "udp_switch_session_manager.h"
-#include "public/utility/singletion_template.h"
-#include "public/utility/binary_calculate.h"
-#include "public/utility/log_file.h"
+/* #include "public/utility/singletion_template.h" */
+/* #include "public/utility/binary_calculate.h" */
+/* #include "public/utility/log_file.h" */
 #include "../utils/udp_flow_statistics.h"
 
 const static std::string SEND_TO_TARGET = "send_to_target";
