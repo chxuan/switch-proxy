@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:udp转换代理会话管理
-日期:2019.11.29
-作者:chengxuan
-*/
+
 #include <unordered_map>
 #include <mutex>
 #include "../common/io_service_pool.h"

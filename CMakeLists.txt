@@ -12,9 +12,11 @@ file(GLOB_RECURSE  SOURCE_FILES "*.cpp")
 file(GLOB_RECURSE  DEBUG_REMOVE_FILE "build/*")
 list(REMOVE_ITEM SOURCE_FILES ${DEBUG_REMOVE_FILE} ${RELEASE_REMOVE_FILE})
 
-#依赖包含 
+#依赖第三方库头文件
 include_directories(../)
 include_directories(/usr/local/include)
+
+#依赖第三方库lib文件
 link_directories(/usr/local/lib)
 
 #可执行程序

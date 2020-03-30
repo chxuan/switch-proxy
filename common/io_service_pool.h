@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:io service池
-日期:2019.11.29
-作者:chengxuan
-*/
+
 #include <boost/asio.hpp>
 #include <vector>
 

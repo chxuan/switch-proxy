@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:tcp转换代理会话管理
-日期:2019.11.29
-作者:chengxuan
-*/
+
 #include "../common/address.h"
 #include "../common/io_service_pool.h"
 

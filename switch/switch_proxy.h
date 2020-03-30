@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:网络转换代理服务
-日期:2019.12.02
-作者:chengxuan
-*/
+
 #include <vector>
 #include "../common/address.h"
 

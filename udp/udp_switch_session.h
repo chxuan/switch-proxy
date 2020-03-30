@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:udp转换代理会话
-日期:2019.11.29
-作者:chengxuan
-*/
+
 #include "udp_socket.h"
 
 class udp_switch_session_manager;

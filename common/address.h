@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:地址
-日期:2019.11.29
-作者:chengxuan
-*/
+
 #include <string>
 
 struct address 

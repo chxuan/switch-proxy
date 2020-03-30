@@ -1,9 +1,5 @@
 #pragma once
-/*
-功能:udp网络流量统计
-日期:2019.11.29
-作者:chengxuan
-*/
+
 #include <atomic>
 #include <map>
 #include <mutex>
