@@ -1,5 +1,9 @@
 #pragma once
-
+/*
+功能:upd转换代理会话
+日期:2020-04-02
+作者:chxuan <787280310@qq.com>
+*/
 #include "udp_socket.h"
 
 class udp_switch_session_manager;

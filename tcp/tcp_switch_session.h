@@ -1,5 +1,9 @@
 #pragma once
-
+/*
+功能:tcp转换代理会话
+日期:2020-04-02
+作者:chxuan <787280310@qq.com>
+*/
 #include "tcp_socket.h"
 
 class tcp_switch_session : public std::enable_shared_from_this<tcp_switch_session>

@@ -1,5 +1,9 @@
 #pragma once
-
+/*
+功能:tcp转换代理会话管理
+日期:2020-04-02
+作者:chxuan <787280310@qq.com>
+*/
 #include "../common/address.h"
 #include "../common/io_service_pool.h"
 

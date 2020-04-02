@@ -1,5 +1,9 @@
 #pragma once
-
+/*
+功能:任务定时器
+日期:2020-04-02
+作者:chxuan <787280310@qq.com>
+*/
 #include <vector>
 #include <thread>
 #include <atomic>

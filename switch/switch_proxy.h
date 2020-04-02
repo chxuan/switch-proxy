@@ -1,5 +1,9 @@
 #pragma once
-
+/*
+功能:网络转换代理
+日期:2020-04-02
+作者:chxuan <787280310@qq.com>
+*/
 #include <vector>
 #include "../common/address.h"
 
