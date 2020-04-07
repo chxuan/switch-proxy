@@ -14,10 +14,10 @@ list(REMOVE_ITEM SOURCE_FILES ${DEBUG_REMOVE_FILE} ${RELEASE_REMOVE_FILE})
 
 #依赖第三方库头文件
 include_directories(../)
-include_directories(/usr/local/include)
+include_directories($ENV{BOOST_INCLUDE_PATH})
 
 #依赖第三方库lib文件
-link_directories(/usr/local/lib)
+link_directories($ENV{BOOST_LIB_PATH})
 
 #可执行程序
 add_executable(${OUT_NAME} ${SOURCE_FILES})

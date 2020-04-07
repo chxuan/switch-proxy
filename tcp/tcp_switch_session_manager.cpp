@@ -14,7 +14,7 @@ void tcp_switch_session_manager::run()
 {
     start_accept();
 
-    LOG_INFO("TCP转换代理启动成功,正在监听:[{}]", (acceptor_.local_endpoint().address().to_string() + ":" + std::to_string(acceptor_.local_endpoint().port())));
+    LOG_INFO("TCP转发代理启动成功,正在监听:[{}]", (acceptor_.local_endpoint().address().to_string() + ":" + std::to_string(acceptor_.local_endpoint().port())));
 
     io_service_pool_.run();
 }

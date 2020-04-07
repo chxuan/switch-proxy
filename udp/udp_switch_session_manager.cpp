@@ -20,7 +20,7 @@ void udp_switch_session_manager::run()
 {
     async_receive_client();
 
-    LOG_INFO("UDP转换代理启动成功,正在监听:[%s]", client_socket_.get_local_address());
+    LOG_INFO("UDP转发代理启动成功,正在监听:[{}]", client_socket_.get_local_address());
 
     io_service_pool_.run();
 }
