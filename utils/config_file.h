@@ -33,12 +33,12 @@ public:
     std::string get_string(const std::string& key)
     {
         auto iter = configs_.find(key);
-        if (iter != configs_.end())
+        if (iter == configs_.end())
         {
-            return iter->second;
+            throw std::runtime_error(std::string("Does not exist key:") + key);
         }
 
-        return "";
+        return iter->second;
     }
 
     // 获得int类型value
@@ -54,7 +54,7 @@ public:
     }
 
     // 判断key是否存在
-    bool is_exists(const std::string& key)
+    bool is_exist(const std::string& key)
     {
         return configs_.find(key) != configs_.end();
     }

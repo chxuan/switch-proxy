@@ -1,6 +1,6 @@
 #include "tcp_switch_session_manager.h"
 #include "tcp_switch_session.h"
-/* #include "public/utility/log_file.h" */
+#include "../utils/easylog/easylog.h"
 
 tcp_switch_session_manager::tcp_switch_session_manager(const address& listen_address, const std::vector<address>& target_address_list, int io_threads)
     : io_service_pool_(io_threads),
@@ -14,7 +14,7 @@ void tcp_switch_session_manager::run()
 {
     start_accept();
 
-    /* LOG(LOGI_INFO, "TCP转换代理启动成功,正在监听:[%s]", (acceptor_.local_endpoint().address().to_string() + ":" + std::to_string(acceptor_.local_endpoint().port())).c_str()); */
+    LOG_INFO("TCP转换代理启动成功,正在监听:[{}]", (acceptor_.local_endpoint().address().to_string() + ":" + std::to_string(acceptor_.local_endpoint().port())));
 
     io_service_pool_.run();
 }
@@ -31,7 +31,7 @@ void tcp_switch_session_manager::start_accept()
         }
         else
         {
-            /* LOG(LOGI_WARN, "接收客户端连接失败:message[%s]", ec.message().c_str()); */
+            LOG_WARN("接收客户端连接失败:message[{}]", ec.message());
         }
 
         start_accept();

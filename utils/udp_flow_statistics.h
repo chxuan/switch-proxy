@@ -7,8 +7,8 @@
 #include <atomic>
 #include <map>
 #include <mutex>
-/* #include "atimer_ex.h" */
-/* #include "public/utility/log_file.h" */
+#include "task_timer.h"
+#include "./easylog/easylog.h"
 
 const static int STATISTICS_SECONDS = 30 * 60;
 
@@ -17,8 +17,8 @@ class udp_flow_statistics
 public:
     udp_flow_statistics() 
     {
-        /* timer_.Bind([this] { print_network_flow(); }); */
-        /* timer_.Start(STATISTICS_SECONDS); */
+        timer_.bind([this] { print_network_flow(); });
+        timer_.start(STATISTICS_SECONDS);
     }
 
 public:
@@ -47,12 +47,12 @@ private:
             str = "没有收到任何网络包";
         }
 
-        /* LOG(LOGI_INFO, "统计间隔[%d]s%s", STATISTICS_SECONDS, str.c_str()); */
+        LOG_INFO("统计间隔[{}]s{}", STATISTICS_SECONDS, str);
         packet_count_.clear();
     }
 
 private:
-    /* ATimerEx<boost::posix_time::seconds> timer_; */
+    task_timer<boost::posix_time::seconds> timer_;
     std::mutex mutex_;
     std::map<std::string, unsigned long long> packet_count_;
 };

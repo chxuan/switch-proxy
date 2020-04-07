@@ -1,9 +1,10 @@
 #include "udp_switch_session.h"
 #include "udp_switch_session_manager.h"
-/* #include "public/utility/singletion_template.h" */
-/* #include "public/utility/binary_calculate.h" */
-/* #include "public/utility/log_file.h" */
 #include "../utils/udp_flow_statistics.h"
+#include "../utils/singletion.h"
+#include "../utils/switch_proxy_util.h"
+
+using namespace sp::util;
 
 const static std::string SEND_TO_TARGET = "send_to_target";
 const static std::string RECEIVE_FROM_TARGET = "receive_from_target";
@@ -34,12 +35,12 @@ void udp_switch_session::send_to_target(const UdpBuffer& buffer, std::size_t len
         try
         {
             std::size_t send_len = target_socket_.socket.send_to(boost::asio::buffer(buffer, len), boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(target.ip), target.port));
-            /* LOG(LOGI_ALL, "向target写数据成功:client[%s]--target[%s]--len[%u]--data[%s]", client_address_.addr.c_str(), target.addr.c_str(), send_len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&buffer), send_len).c_str()); */
-            /* singletion<udp_flow_statistics>::getinstance()->increment_packet(SEND_TO_TARGET + "[" + target.addr + "]"); */
+            LOG_ALL("向target写数据成功:client[{}]--target[{}]--len[{}]--data[{}]", client_address_.addr, target.addr, send_len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&buffer), send_len));
+            singletion<udp_flow_statistics>::instance().increment_packet(SEND_TO_TARGET + "[" + target.addr + "]");
         }
         catch (std::exception& e)
         {
-            /* LOG(LOGI_ALL, "向target写数据失败:client[%s]--target[%s]--error[%s]--data[%s]", client_address_.addr.c_str(), target.addr.c_str(), e.what(), bcd_to_hex(reinterpret_cast<const unsigned char*>(&buffer), len).c_str()); */
+            LOG_ALL("向target写数据失败:client[{}]--target[{}]--error[{}]--data[{}]", client_address_.addr, target.addr, e.what(), bcd_to_hex(reinterpret_cast<const unsigned char*>(&buffer), len));
         }
     }
 }
@@ -61,8 +62,8 @@ void udp_switch_session::async_receive_target()
 
         if (!ec)
         {
-            /* LOG(LOGI_ALL, "接收到target的数据:client[%s]--target[%s]--len[%u]--data[%s]", client_address_.addr.c_str(), target_socket_.get_remote_address().c_str(), len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&target_socket_.buffer), len).c_str()); */
-            /* singletion<udp_flow_statistics>::getinstance()->increment_packet(RECEIVE_FROM_TARGET + "[" + target_socket_.get_remote_address() + "]"); */
+            LOG_ALL("接收到target的数据:client[{}]--target[{}]--len[{}]--data[{}]", client_address_.addr, target_socket_.get_remote_address(), len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&target_socket_.buffer), len));
+            singletion<udp_flow_statistics>::instance().increment_packet(RECEIVE_FROM_TARGET + "[" + target_socket_.get_remote_address() + "]");
 
             session_manager_->send_to_client(target_socket_, len, client_address_);
             async_receive_target();
@@ -71,7 +72,7 @@ void udp_switch_session::async_receive_target()
         // 正在async_receive_from()异步任务等待时，本端关闭套接字
         else if (ec != boost::asio::error::operation_aborted)
         {
-            /* LOG(LOGI_WARN, "接收target数据失败:client[%s]--target[%s]--error[%s]", client_address_.addr.c_str(), target_socket_.get_remote_address().c_str(), ec.message().c_str()); */
+            LOG_WARN("接收target数据失败:client[{}]--target[{}]--error[{}]", client_address_.addr, target_socket_.get_remote_address(), ec.message());
         }
     });
 }
@@ -85,14 +86,14 @@ void udp_switch_session::reset_keepalive_timer()
         {
             if (!closed_ && !ec)
             {
-                /* LOG(LOGI_ALL, "%d分钟都没有接收到client的数据,关闭udp代理--client[%s]", KEEPALIVE_TIMEOUT_SECONDS / 60, client_address_.addr.c_str()); */
+                LOG_ALL("{}分钟都没有接收到client的数据,关闭udp代理--client[{}]", KEEPALIVE_TIMEOUT_SECONDS / 60, client_address_.addr);
                 close();
             }
         });
     }
     catch (std::exception& e)
     {
-        /* LOG(LOGI_WARN, "捕获到keepalive定时器异常:error[%s]", e.what()); */
+        LOG_WARN("捕获到keepalive定时器异常:error[{}]", e.what());
     }
 }
 

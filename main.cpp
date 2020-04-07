@@ -19,8 +19,10 @@ int main(int argc, char* argv[])
 
     EASYLOG_INIT(log_path, (log_level)level, log_file_size);
 
-    /* switch_proxy proxy; */
-    /* proxy.run(); */
+    switch_proxy proxy;
+    proxy.run();
+
+    sleep(-1);
 
     return 0;
 }

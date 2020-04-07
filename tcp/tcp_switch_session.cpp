@@ -1,8 +1,9 @@
 #include "tcp_switch_session.h"
 #include "../utils/tcp_flow_statistics.h"
-/* #include "public/utility/singletion_template.h" */
-/* #include "public/utility/binary_calculate.h" */
-/* #include "public/utility/log_file.h" */
+#include "../utils/singletion.h"
+#include "../utils/switch_proxy_util.h"
+
+using namespace sp::util;
 
 const static std::string RECEIVE_FROM_CLIENT = "receive_from_client";
 const static std::string SEND_TO_CLIENT = "send_to_client";
@@ -25,8 +26,8 @@ tcp_socket& tcp_switch_session::get_client_socket()
 
 void tcp_switch_session::start(const std::vector<address>& target_address_list)
 {
-    /* LOG(LOGI_ALL, "接收到客户端连接:client[%s]", client_socket_.get_session_id().c_str()); */
-    /* singletion<tcp_flow_statistics>::getinstance()->increment_connection(); */
+    LOG_ALL("接收到客户端连接:client[{}]", client_socket_.get_session_id());
+    singletion<tcp_flow_statistics>::instance().increment_connection();
 
     reset_keepalive_timer();
     init_target_socket(target_address_list);
@@ -52,11 +53,11 @@ bool tcp_switch_session::connect_target_server()
         try
         {
             target.socket.connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(target.remote_address.ip), target.remote_address.port));
-            /* LOG(LOGI_ALL, "连接target%d成功:client[%s]--target%d[%s]", target.serial, client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str()); */
+            LOG_ALL("连接target{}成功:client[{}]--target{}[{}]", target.serial, client_socket_.get_session_id(), target.serial, target.get_session_id());
         }
         catch (std::exception& e)
         {
-            /* LOG(LOGI_WARN, "连接target%d失败:client[%s]--target%d[%s]--error[%s]", target.serial, client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), e.what()); */
+            LOG_WARN("连接target{}失败:client[{}]--target{}[{}]--error[{}]", target.serial, client_socket_.get_session_id(), target.serial, target.get_session_id(), e.what());
             close();
             return false;
         }
@@ -79,8 +80,8 @@ void tcp_switch_session::async_read_client()
         {
             reset_keepalive_timer();
 
-            /* LOG(LOGI_ALL, "接收到client的数据:client[%s]--len[%u]--data[%s]", client_socket_.get_session_id().c_str(), len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&client_socket_.buffer), len).c_str()); */
-            /* singletion<tcp_flow_statistics>::getinstance()->increment_packet(RECEIVE_FROM_CLIENT); */
+            LOG_ALL("接收到client的数据:client[{}]--len[{}]--data[{}]", client_socket_.get_session_id(), len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&client_socket_.buffer), len));
+            singletion<tcp_flow_statistics>::instance().increment_packet(RECEIVE_FROM_CLIENT);
 
             send_to_target(len);
             async_read_client();
@@ -89,7 +90,7 @@ void tcp_switch_session::async_read_client()
         // 正在async_read_some()异步任务等待时，本端关闭套接字
         else if (ec != boost::asio::error::operation_aborted)
         {
-            /* LOG(LOGI_WARN, "接收client数据失败,关闭tcp代理:client[%s]--error[%s]", client_socket_.get_session_id().c_str(), ec.message().c_str()); */
+            LOG_WARN("接收client数据失败,关闭tcp代理:client[{}]--error[{}]", client_socket_.get_session_id(), ec.message());
             close();
         }
     });
@@ -115,8 +116,8 @@ void tcp_switch_session::async_read_target(tcp_socket& target)
 
         if (!ec)
         {
-            /* LOG(LOGI_ALL, "接收到target%d的数据:client[%s]--target%d[%s]--len[%u]--data[%s]", target.serial, client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&target.buffer), len).c_str()); */
-            /* singletion<tcp_flow_statistics>::getinstance()->increment_packet(RECEIVE_FROM_TARGET + std::to_string(target.serial)); */
+            LOG_ALL("接收到target{}的数据:client[%s]--target{}[{}]--len[{}]--data[{}]", target.serial, client_socket_.get_session_id(), target.serial, target.get_session_id(), len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&target.buffer), len));
+            singletion<tcp_flow_statistics>::instance().increment_packet(RECEIVE_FROM_TARGET + std::to_string(target.serial));
 
             send_to_client(target, len);
             async_read_target(target);
@@ -125,7 +126,7 @@ void tcp_switch_session::async_read_target(tcp_socket& target)
         // 正在async_read_some()异步任务等待时，本端关闭套接字
         else if (ec != boost::asio::error::operation_aborted)
         {
-            /* LOG(LOGI_WARN, "接收target%d数据失败:client[%s]--target%d[%s]--error[%s]", target.serial, client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), ec.message().c_str()); */
+            LOG_WARN("接收target{}数据失败:client[{}]--target{}[{}]--error[{}]", target.serial, client_socket_.get_session_id(), target.serial, target.get_session_id(), ec.message());
             close();
         }
     });
@@ -137,12 +138,12 @@ void tcp_switch_session::send_to_client(tcp_socket& target, std::size_t len)
     std::size_t write_len = boost::asio::write(client_socket_.socket, boost::asio::buffer(target.buffer, len), ec);
     if (!ec)
     {
-        /* LOG(LOGI_ALL, "向client写数据成功:client[%s]--target%d[%s]--len[%u]--data[%s]", client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), write_len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&target.buffer), write_len).c_str()); */
-        /* singletion<tcp_flow_statistics>::getinstance()->increment_packet(SEND_TO_CLIENT); */
+        LOG_ALL("向client写数据成功:client[{}]--target{}[{}]--len[{}]--data[{}]", client_socket_.get_session_id(), target.serial, target.get_session_id(), write_len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&target.buffer), write_len));
+        singletion<tcp_flow_statistics>::instance().increment_packet(SEND_TO_CLIENT);
     }
     else
     {
-        /* LOG(LOGI_ALL, "向client写数据失败:client[%s]--target%d[%s]--error[%s]--data[%s]", client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), ec.message().c_str(), bcd_to_hex(reinterpret_cast<const unsigned char*>(&target.buffer), len).c_str()); */
+        LOG_ALL("向client写数据失败:client[{}]--target{}[{}]--error[{}]--data[{}]", client_socket_.get_session_id(), target.serial, target.get_session_id(), ec.message(), bcd_to_hex(reinterpret_cast<const unsigned char*>(&target.buffer), len));
     }
 }
 
@@ -154,12 +155,12 @@ void tcp_switch_session::send_to_target(std::size_t len)
         std::size_t write_len = boost::asio::write(target.socket, boost::asio::buffer(client_socket_.buffer, len), ec);
         if (!ec)
         {
-            /* LOG(LOGI_ALL, "向target%d写数据成功:client[%s]--target%d[%s]--len[%u]--data[%s]", target.serial, client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), write_len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&client_socket_.buffer), write_len).c_str()); */
-            /* singletion<tcp_flow_statistics>::getinstance()->increment_packet(SEND_TO_TARGET + std::to_string(target.serial)); */
+            LOG_ALL("向target{}写数据成功:client[{}]--target{}[{}]--len[{}]--data[{}]", target.serial, client_socket_.get_session_id(), target.serial, target.get_session_id(), write_len, bcd_to_hex(reinterpret_cast<const unsigned char*>(&client_socket_.buffer), write_len));
+            singletion<tcp_flow_statistics>::instance().increment_packet(SEND_TO_TARGET + std::to_string(target.serial));
         }
         else
         {
-            /* LOG(LOGI_ALL, "向target%d写数据失败:client[%s]--target%d[%s]--error[%s]--data[%s]", target.serial, client_socket_.get_session_id().c_str(), target.serial, target.get_session_id().c_str(), ec.message().c_str(), bcd_to_hex(reinterpret_cast<const unsigned char*>(&client_socket_.buffer), len).c_str()); */
+            LOG_ALL("向target{}写数据失败:client[{}]--target{}[{}]--error[{}]--data[{}]", target.serial, client_socket_.get_session_id(), target.serial, target.get_session_id(), ec.message(), bcd_to_hex(reinterpret_cast<const unsigned char*>(&client_socket_.buffer), len));
         }
     }
 }
@@ -174,14 +175,14 @@ void tcp_switch_session::reset_keepalive_timer()
         {
             if (!closed_ && !ec)
             {
-                /* LOG(LOGI_ALL, "%d分钟都没有接收到client的数据,关闭tcp代理:client[%s]", KEEPALIVE_TIMEOUT_SECONDS / 60, client_socket_.get_session_id().c_str()); */
+                LOG_ALL("{}分钟都没有接收到client的数据,关闭tcp代理:client[{}]", KEEPALIVE_TIMEOUT_SECONDS / 60, client_socket_.get_session_id());
                 close();
             }
         });
     }
     catch (std::exception& e)
     {
-        /* LOG(LOGI_WARN, "捕获到keepalive定时器异常:error[%s]", e.what()); */
+        LOG_WARN("捕获到keepalive定时器异常:error[{}]", e.what());
     }
 }
 
@@ -197,7 +198,7 @@ void tcp_switch_session::close()
         close_target_socket();
         close_client_socket();
 
-        /* singletion<tcp_flow_statistics>::getinstance()->subtract_connection(); */
+        singletion<tcp_flow_statistics>::instance().subtract_connection();
     }
 }
 
