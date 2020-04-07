@@ -48,7 +48,7 @@ log_path=./log
 log_file_size=104857600
 
 #协议类型[tcp或udp]
-type=udp
+type=tcp
 
 #转发的目标服务地址,编号[0~99]
 target_ip0=127.0.0.1
