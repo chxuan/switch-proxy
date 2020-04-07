@@ -24,9 +24,9 @@ export BOOST_LIB_PATH="your/boost/lib/path"
 
     ./switch_proxy_server ./switch_proxy.conf
 
-控制台或日志显示如下日志则表示服务启动成功
+控制台或日志显示如下信息则表示服务启动成功
 
-    I2020-04-07 01:35:22.345 udp_switch_session_manager.cpp:23] UDP转发代理启动成功,正在监听:[0.0.0.0:8888]
+    I2020-04-07 01:41:28.710 tcp_switch_session_manager.cpp:17] TCP转发代理启动成功,正在监听:[0.0.0.0:8888]
 
 ## 配置文件
 
